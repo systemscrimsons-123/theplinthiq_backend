@@ -1,0 +1,1123 @@
+// =====================================================================
+// THE PLINTH IQ / Curato Matrix — Prisma Schema (v4, implementation-ready)
+// Maps the full v4 SQL schema.
+//
+// NOTE: PL/pgSQL triggers are NOT managed by Prisma. They are applied
+// via the raw SQL baseline migration in prisma/migrations/0001_baseline/.
+// Run: npx prisma migrate deploy
+// =====================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =====================================================================
+// ENUMS
+// =====================================================================
+
+enum UserRole {
+  artist
+  gallery
+  art_professional
+  collector
+  admin
+
+  @@map("user_role")
+}
+
+enum AccountStatus {
+  active
+  inactive
+  pending_verification
+
+  @@map("account_status")
+}
+
+enum VerificationStatus {
+  unverified
+  pending
+  verified
+  rejected
+
+  @@map("verification_status")
+}
+
+enum CareerStage {
+  emerging
+  mid_career
+  established
+
+  @@map("career_stage")
+}
+
+enum ScaleRange {
+  small
+  medium
+  large
+
+  @@map("scale_range")
+}
+
+enum TaxonomyCategory {
+  medium
+  aesthetic
+  interest
+
+  @@map("taxonomy_category")
+}
+
+enum RepresentationStatus {
+  unrepresented_seeking
+  represented_non_exclusive
+  fully_represented
+
+  @@map("representation_status")
+}
+
+enum PlatformIntent {
+  open_to_gallery_representation
+  seeking_group_shows
+  seeking_residencies
+  open_to_collector_visits
+  other
+
+  @@map("platform_intent")
+}
+
+enum CvEntryType {
+  exhibition
+  award
+  residency
+  education
+  publication
+  collection
+  additional
+
+  @@map("cv_entry_type")
+}
+
+enum SpaceType {
+  digital
+  commercial_brick_mortar
+  hybrid_pop_up
+  non_profit_project_space
+  artist_run_space
+
+  @@map("space_type")
+}
+
+enum OpenCallStatus {
+  accepting_pitches
+  reviewing_portfolios_closed
+  invite_only
+
+  @@map("open_call_status")
+}
+
+enum ProfessionalSubType {
+  curator
+  art_advisor
+
+  @@map("professional_sub_type")
+}
+
+enum CollectingIntent {
+  supporting_emerging
+  institutional_acquisition
+  meeting_artists_directly
+  discovering_unrepresented_talent
+
+  @@map("collecting_intent")
+}
+
+enum BriefType {
+  gallery_open_call
+  curatorial_brief
+  patronage_brief
+
+  @@map("brief_type")
+}
+
+enum BriefStatus {
+  draft
+  published
+  closed
+
+  @@map("brief_status")
+}
+
+enum PitchStatus {
+  submitted
+  shortlisted
+  under_review
+  saved
+  accepted
+  declined
+
+  @@map("pitch_status")
+}
+
+
+enum RequestType {
+  pvr
+  introduction
+  visit
+  enquiry
+
+  @@map("request_type")
+}
+
+enum RequestStatus {
+  pending
+  accepted
+  declined
+
+  @@map("request_status")
+}
+
+enum VisitStatus {
+  pending
+  accepted
+  declined
+  scheduled
+  completed
+  cancelled
+
+  @@map("visit_status")
+}
+
+// =====================================================================
+// 1. CORE IDENTITY + VERIFICATION
+// =====================================================================
+
+model User {
+  id                 String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email1             String             @unique @db.VarChar(255)
+  email2             String?            @db.VarChar(255)
+  phone1             String?            @db.VarChar(30)
+  phone2             String?            @db.VarChar(30)
+  passwordHash       String             @map("password_hash") @db.VarChar(255)
+  role               UserRole
+  status             AccountStatus      @default(pending_verification)
+  verificationStatus VerificationStatus @default(unverified) @map("verification_status")
+  emailVerifiedAt    DateTime?          @map("email_verified_at") @db.Timestamptz()
+  onboardingCompleted Boolean           @default(false) @map("onboarding_completed")
+  settings           Json?              @default("{}") @map("settings")
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt          DateTime           @updatedAt @map("updated_at") @db.Timestamptz()
+
+  // Relations
+  artistProfile           ArtistProfile?
+  galleryProfile          GalleryProfile?
+  artProfessionalProfile  ArtProfessionalProfile?
+  collectorProfile        CollectorProfile?
+  verificationSubmissions VerificationSubmission[] @relation("UserSubmissions")
+  reviewedSubmissions     VerificationSubmission[] @relation("ReviewedSubmissions")
+  shortlists              Shortlist[]
+  follows                 Follow[]                 @relation("Follower")
+  followedBy              Follow[]                 @relation("Followee")
+  sentRequests            Request[]                @relation("Requester")
+  receivedRequests        Request[]                @relation("Recipient")
+  threadParticipations    ThreadParticipant[]
+  sentMessages            ThreadMessage[]
+  requestStatusChanges    RequestStatusHistory[]
+  visitStatusChanges      VisitStatusHistory[]
+  pitchChangedBy          PitchStatusHistory[]     @relation("PitchChangedBy")
+  postedBriefs            Brief[]
+  engagementEvents        EngagementEvent[]
+  adminActions            AdminAction[]            @relation("AdminActor")
+  targetAdminActions      AdminAction[]            @relation("AdminTarget")
+  revealsInitiated        ContactReveal[]          @relation("Revealer")
+  revealsReceived         ContactReveal[]          @relation("RevealedTarget")
+  uploadedAssets          UploadedAsset[]
+  notifications           Notification[]           @relation("NotificationRecipient")
+  notificationActions     Notification[]           @relation("NotificationActor")
+
+  @@map("users")
+}
+
+model Notification {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  actorId     String?   @map("actor_id") @db.Uuid
+  category    String    @db.VarChar(30)
+  type        String    @db.VarChar(50)
+  title       String    @db.VarChar(180)
+  message     String
+  link        String?   @db.VarChar(500)
+  metadata    Json?     @default("{}")
+  readAt      DateTime? @map("read_at") @db.Timestamptz()
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz()
+  emailSentAt DateTime? @map("email_sent_at") @db.Timestamptz()
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+
+  user  User  @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  actor User? @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([userId, deletedAt, createdAt])
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model VerificationSubmission {
+  id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String             @map("user_id") @db.Uuid
+  evidenceUrl     String?            @map("evidence_url")
+  evidenceNotes   String?            @map("evidence_notes")
+  evidenceDetails Json?              @default("{}") @map("evidence_details")
+  submittedAt     DateTime           @default(now()) @map("submitted_at") @db.Timestamptz()
+  decision        VerificationStatus?
+  reviewedBy      String?            @map("reviewed_by") @db.Uuid
+  reviewedAt      DateTime?          @map("reviewed_at") @db.Timestamptz()
+  reviewerNotes   String?            @map("reviewer_notes")
+
+  user     User  @relation("UserSubmissions", fields: [userId], references: [id], onDelete: Cascade)
+  reviewer User? @relation("ReviewedSubmissions", fields: [reviewedBy], references: [id])
+
+  @@map("verification_submissions")
+}
+
+// =====================================================================
+// 2. SHARED TAXONOMY
+// =====================================================================
+
+model TaxonomyTerm {
+  id       String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  category TaxonomyCategory
+  label    String           @db.VarChar(100)
+
+  artistMediums               ArtistMedium[]
+  artistAesthetics            ArtistAesthetic[]
+  galleryMediums              GalleryMedium[]
+  artProfessionalInterests    ArtProfessionalInterest[]
+  artProfessionalPrefMediums  ArtProfessionalPreferenceMedium[]
+  collectorInterests          CollectorInterest[]
+  briefMediums                BriefMedium[]
+
+  @@unique([category, label])
+  @@map("taxonomy_terms")
+}
+
+// =====================================================================
+// 3. ARTIST
+// =====================================================================
+
+model ArtistProfile {
+  userId               String               @id @map("user_id") @db.Uuid
+  fullName             String?              @map("full_name") @db.VarChar(150)
+  workingName          String               @map("working_name") @db.VarChar(150)
+  bannerUrl            String?              @map("banner_url")
+  photoUrl             String?              @map("photo_url")
+  city                 String?              @db.VarChar(100)
+  stateRegion          String?              @map("state_region") @db.VarChar(100)
+  country              String?              @db.VarChar(100)
+  careerStage          CareerStage?         @map("career_stage")
+  websiteUrl           String?              @map("website_url")
+  socialLinks          Json                 @default("{}") @map("social_links")
+  artistStatement      String?              @map("artist_statement")
+  biography            String?
+  representationStatus RepresentationStatus? @map("representation_status")
+  availabilityStatus   String?              @map("availability_status") @db.VarChar(200)
+  currentFocus         String?              @map("current_focus") @db.VarChar(500)
+  preferredLocations   String[]             @default([]) @map("preferred_locations")
+  additionalNotes      String?              @map("additional_notes") @db.VarChar(500)
+  cvDocumentUrl        String?              @map("cv_document_url")
+  pitchPackage         Json?                @default("{}") @map("pitch_package")
+  createdAt            DateTime             @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt            DateTime             @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediums           ArtistMedium[]
+  materialTags      ArtistMaterialTag[]
+  scaleRanges       ArtistScaleRange[]
+  aesthetics        ArtistAesthetic[]
+  platformIntents   ArtistPlatformIntent[]
+  cvEntries         ArtistCvEntry[]
+  portfolioItems    PortfolioItem[]
+  pitches           Pitch[]
+  pitchAllowances   ArtistPitchAllowance[]
+  galleryRosters    GalleryRoster[]
+  shortlistItems    ShortlistItem[]
+
+  @@map("artist_profiles")
+}
+
+model ArtistMedium {
+  artistId String @map("artist_id") @db.Uuid
+  mediumId String @map("medium_id") @db.Uuid
+
+  artist ArtistProfile @relation(fields: [artistId], references: [userId], onDelete: Cascade)
+  medium TaxonomyTerm  @relation(fields: [mediumId], references: [id])
+
+  @@id([artistId, mediumId])
+  @@map("artist_mediums")
+}
+
+model ArtistMaterialTag {
+  artistId String @map("artist_id") @db.Uuid
+  tag      String @db.VarChar(60)
+
+  artist ArtistProfile @relation(fields: [artistId], references: [userId], onDelete: Cascade)
+
+  @@id([artistId, tag])
+  @@map("artist_material_tags")
+}
+
+model ArtistScaleRange {
+  artistId String     @map("artist_id") @db.Uuid
+  scale    ScaleRange
+
+  artist ArtistProfile @relation(fields: [artistId], references: [userId], onDelete: Cascade)
+
+  @@id([artistId, scale])
+  @@map("artist_scale_ranges")
+}
+
+// Correction 1: surrogate PK + partial unique indexes (see migration SQL)
+// Constraint: exactly one of aestheticId / customLabel must be set (DB CHECK)
+// Limit: max 10 per artist (DB trigger)
+model ArtistAesthetic {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  artistId    String  @map("artist_id") @db.Uuid
+  aestheticId String? @map("aesthetic_id") @db.Uuid
+  customLabel String? @map("custom_label") @db.VarChar(100)
+
+  artist    ArtistProfile @relation(fields: [artistId], references: [userId], onDelete: Cascade)
+  aesthetic TaxonomyTerm? @relation(fields: [aestheticId], references: [id])
+
+  @@map("artist_aesthetics")
+}
+
+model ArtistPlatformIntent {
+  artistId  String         @map("artist_id") @db.Uuid
+  intent    PlatformIntent
+  otherText String?        @map("other_text") @db.VarChar(150)
+
+  artist ArtistProfile @relation(fields: [artistId], references: [userId], onDelete: Cascade)
+
+  @@id([artistId, intent])
+  @@map("artist_platform_intent")
+}
+
+model ArtistCvEntry {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  artistId     String      @map("artist_id") @db.Uuid
+  entryType    CvEntryType @map("entry_type")
+  title        String      @db.VarChar(200)
+  organisation String?     @db.VarChar(200)
+  year         Int?
+  description  String?
+
+  artist ArtistProfile @relation(fields: [artistId], references: [userId], onDelete: Cascade)
+
+  @@map("artist_cv_entries")
+}
+
+// Max 10 public items enforced by DB trigger
+model PortfolioItem {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  artistId     String   @map("artist_id") @db.Uuid
+  imageUrl     String   @map("image_url")
+  title        String?  @db.VarChar(200)
+  year         Int?
+  medium       String?  @db.VarChar(150)
+  dimensions   String?  @db.VarChar(100)
+  contextNotes String?  @map("context_notes")
+  isPublic     Boolean  @default(true) @map("is_public")
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  artist          ArtistProfile         @relation(fields: [artistId], references: [userId], onDelete: Cascade)
+  pitchItems      PitchPortfolioItem[]
+  collectionItems CollectionItem[]
+  pvrGrantItems   PvrAccessGrantItem[]
+
+  @@index([artistId], map: "idx_portfolio_artist")
+  @@map("portfolio_items")
+}
+
+// =====================================================================
+// 4. GALLERY
+// =====================================================================
+
+model GalleryProfile {
+  userId                String         @id @map("user_id") @db.Uuid
+  galleryName           String         @map("gallery_name") @db.VarChar(200)
+  alsoKnownAs           String?        @map("also_known_as") @db.VarChar(200)
+  logoUrl               String?        @map("logo_url")
+  coverImageUrl         String?        @map("cover_image_url")
+  spaceType             SpaceType?     @map("space_type")
+  yearEstablished       Int?           @map("year_established")
+  numberOfLocations     String?        @map("number_of_locations") @db.VarChar(50)
+  directorName          String?        @map("director_name") @db.VarChar(150)
+  directorEmail         String?        @map("director_email") @db.VarChar(255)
+  directorEmailVerified Boolean        @default(false) @map("director_email_verified")
+  ethosStatement        String?        @map("ethos_statement")
+  mission               String?        @map("mission")
+  representedArtistsCount Int?         @map("represented_artists_count")
+  initialArtists        String[]       @default([]) @map("initial_artists")
+  openCallStatus        OpenCallStatus @default(invite_only) @map("open_call_status")
+  visitPolicyEnabled    Boolean        @default(false) @map("visit_policy_enabled")
+  directOutreachEnabled Boolean        @default(false) @map("direct_outreach_enabled")
+  websiteUrl            String?        @map("website_url")
+  socialLinks           Json           @default("{}") @map("social_links")
+  createdAt             DateTime       @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt             DateTime       @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user             User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  locations        GalleryLocation[]
+  mediums          GalleryMedium[]
+  targetStages     GalleryTargetCareerStage[]
+  roster           GalleryRoster[]
+  exhibitions      GalleryExhibition[]
+
+  @@map("gallery_profiles")
+}
+
+model GalleryLocation {
+  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  galleryId     String  @map("gallery_id") @db.Uuid
+  streetAddress String? @map("street_address") @db.VarChar(200)
+  city          String? @db.VarChar(100)
+  stateRegion   String? @map("state_region") @db.VarChar(100)
+  country       String? @db.VarChar(100)
+  postcode      String? @db.VarChar(20)
+  isPrimary     Boolean @default(false) @map("is_primary")
+
+  gallery GalleryProfile @relation(fields: [galleryId], references: [userId], onDelete: Cascade)
+
+  @@map("gallery_locations")
+}
+
+model GalleryMedium {
+  galleryId String @map("gallery_id") @db.Uuid
+  mediumId  String @map("medium_id") @db.Uuid
+
+  gallery GalleryProfile @relation(fields: [galleryId], references: [userId], onDelete: Cascade)
+  medium  TaxonomyTerm   @relation(fields: [mediumId], references: [id])
+
+  @@id([galleryId, mediumId])
+  @@map("gallery_mediums")
+}
+
+model GalleryTargetCareerStage {
+  galleryId   String      @map("gallery_id") @db.Uuid
+  careerStage CareerStage @map("career_stage")
+
+  gallery GalleryProfile @relation(fields: [galleryId], references: [userId], onDelete: Cascade)
+
+  @@id([galleryId, careerStage])
+  @@map("gallery_target_career_stages")
+}
+
+model GalleryRoster {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  galleryId          String   @map("gallery_id") @db.Uuid
+  artistId           String   @map("artist_id") @db.Uuid
+  representationType String?  @default("exclusive") @map("representation_type") @db.VarChar(50)
+  status             String   @default("active") @map("status") @db.VarChar(30)
+  note               String?  @db.VarChar(200)
+  addedAt            DateTime @default(now()) @map("added_at") @db.Timestamptz()
+
+  gallery GalleryProfile @relation(fields: [galleryId], references: [userId], onDelete: Cascade)
+  artist  ArtistProfile  @relation(fields: [artistId], references: [userId], onDelete: Cascade)
+
+  @@unique([galleryId, artistId])
+  @@map("gallery_roster")
+}
+
+model GalleryExhibition {
+  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  galleryId            String    @map("gallery_id") @db.Uuid
+  title                String    @db.VarChar(200)
+  description          String?
+  imageUrl             String?   @map("image_url")
+  exhibitionType       String?   @map("exhibition_type") @db.VarChar(100)
+  participatingArtists String[]  @default([]) @map("participating_artists")
+  startDate            DateTime? @map("start_date") @db.Date
+  endDate              DateTime? @map("end_date") @db.Date
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+
+  gallery GalleryProfile @relation(fields: [galleryId], references: [userId], onDelete: Cascade)
+
+  @@map("gallery_exhibitions")
+}
+
+// =====================================================================
+// 5. ART PROFESSIONAL
+// =====================================================================
+
+model ArtProfessionalProfile {
+  userId         String              @id @map("user_id") @db.Uuid
+  subType        ProfessionalSubType @map("sub_type")
+  displayName    String              @map("display_name") @db.VarChar(150)
+  workingName    String?             @map("working_name") @db.VarChar(150)
+  photoUrl       String?             @map("photo_url")
+  organisation   String?             @db.VarChar(200)
+  jobTitle       String?             @map("job_title") @db.VarChar(150)
+  yearsExperience String?            @map("years_experience") @db.VarChar(50)
+  biography      String?
+  backgroundText String?             @map("background_text")
+  whyJoined      String?             @map("why_joined")
+  whatDrives     String?             @map("what_drives")
+  currentFocus   String?             @map("current_focus")
+  additionalInterests String?        @map("additional_interests")
+  city           String?             @db.VarChar(100)
+  stateRegion    String?             @map("state_region") @db.VarChar(100)
+  country        String?             @db.VarChar(100)
+  websiteUrl     String?             @map("website_url")
+  socialLinks    Json                @default("{}") @map("social_links")
+  createdAt      DateTime            @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt      DateTime            @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user        User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interests   ArtProfessionalInterest[]
+  preferences ArtProfessionalPreferences?
+
+  @@map("art_professional_profiles")
+}
+
+model ArtProfessionalInterest {
+  professionalId String @map("professional_id") @db.Uuid
+  interestId     String @map("interest_id") @db.Uuid
+
+  professional ArtProfessionalProfile @relation(fields: [professionalId], references: [userId], onDelete: Cascade)
+  interest     TaxonomyTerm           @relation(fields: [interestId], references: [id])
+
+  @@id([professionalId, interestId])
+  @@map("art_professional_interests")
+}
+
+model ArtProfessionalPreferences {
+  userId                String        @id @map("user_id") @db.Uuid
+  preferredCareerStages CareerStage[] @map("preferred_career_stages")
+  preferredScale        ScaleRange[]  @map("preferred_scale")
+  preferredLocation     String?       @map("preferred_location") @db.VarChar(150)
+  note                  String?
+
+  professional ArtProfessionalProfile            @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  mediums      ArtProfessionalPreferenceMedium[]
+
+  @@map("art_professional_preferences")
+}
+
+model ArtProfessionalPreferenceMedium {
+  userId   String @map("user_id") @db.Uuid
+  mediumId String @map("medium_id") @db.Uuid
+
+  preferences ArtProfessionalPreferences @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  medium      TaxonomyTerm               @relation(fields: [mediumId], references: [id])
+
+  @@id([userId, mediumId])
+  @@map("art_professional_preference_mediums")
+}
+
+// =====================================================================
+// 6. COLLECTOR
+// =====================================================================
+
+model CollectorProfile {
+  userId               String   @id @map("user_id") @db.Uuid
+  displayHandle        String   @map("display_handle") @db.VarChar(100)
+  realName             String?  @map("real_name") @db.VarChar(150)
+  isPseudonymous       Boolean  @default(true) @map("is_pseudonymous")
+  photoUrl             String?  @map("photo_url")
+  bio                  String?
+  city                 String?  @db.VarChar(100)
+  stateRegion          String?  @map("state_region") @db.VarChar(100)
+  country              String?  @db.VarChar(100)
+  websiteUrl           String?  @map("website_url") @db.VarChar(255)
+  privacyTier          String?  @default("public") @map("privacy_tier") @db.VarChar(50)
+  allowDirectInquiries Boolean  @default(true) @map("allow_direct_inquiries")
+  
+  // Newly added fields to support rich Collector Profile UI
+  bannerUrl            String?  @map("banner_url")
+  collectorType        String?  @map("collector_type") @db.VarChar(100)
+  collectingSince      String?  @map("collecting_since") @db.VarChar(10)
+  curatorialStatement  String?  @map("curatorial_statement")
+  collectingEras       Json     @default("[]") @map("collecting_eras")
+  spatialContexts      Json     @default("[]") @map("spatial_contexts")
+  instagramHandle      String?  @map("instagram_handle") @db.VarChar(100)
+  linkedinHandle       String?  @map("linkedin_handle") @db.VarChar(100)
+
+  privacySettings      Json     @default("{}") @map("privacy_settings")
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt            DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user         User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interests    CollectorInterest[]
+  careerPrefs  CollectorCareerStagePref[]
+  intents      CollectorIntent[]
+  collections  Collection[]
+
+  @@map("collector_profiles")
+}
+
+model CollectorInterest {
+  collectorId String @map("collector_id") @db.Uuid
+  interestId  String @map("interest_id") @db.Uuid
+
+  collector CollectorProfile @relation(fields: [collectorId], references: [userId], onDelete: Cascade)
+  interest  TaxonomyTerm     @relation(fields: [interestId], references: [id])
+
+  @@id([collectorId, interestId])
+  @@map("collector_interests")
+}
+
+model CollectorCareerStagePref {
+  collectorId String      @map("collector_id") @db.Uuid
+  careerStage CareerStage @map("career_stage")
+
+  collector CollectorProfile @relation(fields: [collectorId], references: [userId], onDelete: Cascade)
+
+  @@id([collectorId, careerStage])
+  @@map("collector_career_stage_prefs")
+}
+
+model CollectorIntent {
+  collectorId String           @map("collector_id") @db.Uuid
+  intent      CollectingIntent
+
+  collector CollectorProfile @relation(fields: [collectorId], references: [userId], onDelete: Cascade)
+
+  @@id([collectorId, intent])
+  @@map("collector_intents")
+}
+
+// =====================================================================
+// 7. SOCIAL GRAPH
+// =====================================================================
+
+// Restricted by DB trigger: only Collector->Artist and ArtProfessional->Artist
+model Follow {
+  followerId String   @map("follower_id") @db.Uuid
+  followeeId String   @map("followee_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  follower User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followee User @relation("Followee", fields: [followeeId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followeeId])
+  @@map("follows")
+}
+
+// Restricted by DB trigger: only art_professional can own a shortlist
+model Shortlist {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ownerId   String   @map("owner_id") @db.Uuid
+  name      String   @db.VarChar(150)
+  description String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  owner User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  items ShortlistItem[]
+
+  @@map("shortlists")
+}
+
+model ShortlistItem {
+  shortlistId String   @map("shortlist_id") @db.Uuid
+  artistId    String   @map("artist_id") @db.Uuid
+  addedAt     DateTime @default(now()) @map("added_at") @db.Timestamptz()
+
+  shortlist Shortlist     @relation(fields: [shortlistId], references: [id], onDelete: Cascade)
+  artist    ArtistProfile @relation(fields: [artistId], references: [userId], onDelete: Cascade)
+
+  @@id([shortlistId, artistId])
+  @@map("shortlist_items")
+}
+
+model Collection {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  collectorId String   @map("collector_id") @db.Uuid
+  name        String   @db.VarChar(150)
+  description String?
+  collectionType String @default("moodboard") @map("collection_type") @db.VarChar(30)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  collector CollectorProfile @relation(fields: [collectorId], references: [userId], onDelete: Cascade)
+  items     CollectionItem[]
+
+  @@map("collections")
+}
+
+model CollectionItem {
+  collectionId    String   @map("collection_id") @db.Uuid
+  portfolioItemId String   @map("portfolio_item_id") @db.Uuid
+  note            String?  @db.VarChar(300)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  collection    Collection    @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  portfolioItem PortfolioItem @relation(fields: [portfolioItemId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, portfolioItemId])
+  @@map("collection_items")
+}
+
+// =====================================================================
+// 8. BRIEFS
+// =====================================================================
+
+// Poster role validated by DB trigger against brief_type
+model Brief {
+  id                   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postedByUserId       String       @map("posted_by_user_id") @db.Uuid
+  briefType            BriefType    @map("brief_type")
+  title                String       @db.VarChar(200)
+  description          String
+  opportunityType      String?      @map("opportunity_type") @db.VarChar(100)
+  exhibitionTheme      String?      @map("exhibition_theme") @db.VarChar(200)
+  requiredCareerStages CareerStage[] @map("required_career_stages")
+  scaleRequirements    ScaleRange[] @map("scale_requirements")
+  location             String?      @db.VarChar(150)
+  submissionDeadline   DateTime?    @map("submission_deadline") @db.Date
+  eventStartDate       DateTime?    @map("event_start_date") @db.Date
+  eventEndDate         DateTime?    @map("event_end_date") @db.Date
+  artistRequirements   String?      @map("artist_requirements")
+  additionalInfo       String?      @map("additional_info")
+  status               BriefStatus  @default(draft)
+  createdAt            DateTime     @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt            DateTime     @updatedAt @map("updated_at") @db.Timestamptz()
+
+  postedBy User         @relation(fields: [postedByUserId], references: [id], onDelete: Cascade)
+  mediums  BriefMedium[]
+  images   BriefImage[]
+  pitches  Pitch[]
+
+  @@index([briefType, status], map: "idx_briefs_type_status")
+  @@map("briefs")
+}
+
+model BriefMedium {
+  briefId  String @map("brief_id") @db.Uuid
+  mediumId String @map("medium_id") @db.Uuid
+
+  brief  Brief        @relation(fields: [briefId], references: [id], onDelete: Cascade)
+  medium TaxonomyTerm @relation(fields: [mediumId], references: [id])
+
+  @@id([briefId, mediumId])
+  @@map("brief_mediums")
+}
+
+model BriefImage {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  briefId   String @map("brief_id") @db.Uuid
+  imageUrl  String @map("image_url")
+  sortOrder Int    @default(0) @map("sort_order")
+
+  brief Brief @relation(fields: [briefId], references: [id], onDelete: Cascade)
+
+  @@map("brief_images")
+}
+
+// =====================================================================
+// 9. PITCHES + ALLOWANCES
+// =====================================================================
+
+model Pitch {
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  briefId         String      @map("brief_id") @db.Uuid
+  artistId        String      @map("artist_id") @db.Uuid
+  statement       String
+  status          PitchStatus @default(submitted)
+  declineReason   String?     @map("decline_reason") @db.VarChar(100)
+  declineFeedback String?     @map("decline_feedback")
+  curatorNotes    String?     @map("curator_notes")
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt       DateTime    @updatedAt @map("updated_at") @db.Timestamptz()
+
+  brief          Brief                @relation(fields: [briefId], references: [id], onDelete: Cascade)
+  artist         ArtistProfile        @relation(fields: [artistId], references: [userId], onDelete: Cascade)
+  portfolioItems PitchPortfolioItem[]
+  statusHistory  PitchStatusHistory[]
+
+  @@unique([briefId, artistId])
+  @@index([briefId], map: "idx_pitches_brief")
+  @@index([artistId], map: "idx_pitches_artist")
+  @@map("pitches")
+}
+
+model PitchPortfolioItem {
+  pitchId         String @map("pitch_id") @db.Uuid
+  portfolioItemId String @map("portfolio_item_id") @db.Uuid
+
+  pitch         Pitch         @relation(fields: [pitchId], references: [id], onDelete: Cascade)
+  portfolioItem PortfolioItem @relation(fields: [portfolioItemId], references: [id], onDelete: Cascade)
+
+  @@id([pitchId, portfolioItemId])
+  @@map("pitch_portfolio_items")
+}
+
+// Monthly allowance tracked in DB + consumed atomically via SQL function
+model ArtistPitchAllowance {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  artistId    String   @map("artist_id") @db.Uuid
+  periodStart DateTime @map("period_start") @db.Date
+  periodEnd   DateTime @map("period_end") @db.Date
+  pitchLimit  Int      @default(3) @map("pitch_limit")
+  pitchesUsed Int      @default(0) @map("pitches_used")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  artist ArtistProfile @relation(fields: [artistId], references: [userId], onDelete: Cascade)
+
+  @@unique([artistId, periodStart])
+  @@map("artist_pitch_allowances")
+}
+
+// =====================================================================
+// 10. INTERACTION PERMISSION MATRIX
+// =====================================================================
+
+model InteractionPermission {
+  fromRole UserRole @map("from_role")
+  toRole   UserRole @map("to_role")
+  mode     String   @db.VarChar(20) // 'open' | 'request_only' | 'blocked' | 'pitch_only'
+
+  @@id([fromRole, toRole])
+  @@map("interaction_permissions")
+}
+
+// =====================================================================
+// 11. REQUESTS
+// =====================================================================
+
+model Request {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requesterId     String        @map("requester_id") @db.Uuid
+  recipientId     String        @map("recipient_id") @db.Uuid
+  requestType     RequestType   @map("request_type")
+  status          RequestStatus @default(pending)
+  message         String?
+  declineReason   String?       @map("decline_reason") @db.VarChar(100)
+  declineFeedback String?       @map("decline_feedback")
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz()
+  respondedAt     DateTime?     @map("responded_at") @db.Timestamptz()
+
+  requester     User                   @relation("Requester", fields: [requesterId], references: [id], onDelete: Cascade)
+  recipient     User                   @relation("Recipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  statusHistory RequestStatusHistory[]
+  pvrGrant      PvrAccessGrant?
+  pvrGrantItems PvrAccessGrantItem[]
+  visitRequest  VisitRequest?
+  thread        Thread[]
+
+  @@index([recipientId, status], map: "idx_requests_recipient")
+  @@index([requesterId, status], map: "idx_requests_requester")
+  @@map("requests")
+}
+
+model RequestStatusHistory {
+  id         String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requestId  String         @map("request_id") @db.Uuid
+  fromStatus RequestStatus? @map("from_status")
+  toStatus   RequestStatus  @map("to_status")
+  changedBy  String?        @map("changed_by") @db.Uuid
+  changedAt  DateTime       @default(now()) @map("changed_at") @db.Timestamptz()
+  note       String?
+
+  request   Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  changedByUser User? @relation(fields: [changedBy], references: [id])
+
+  @@map("request_status_history")
+}
+
+// DB trigger ensures referenced request is type='pvr' AND status='accepted'
+model PvrAccessGrant {
+  requestId       String    @id @map("request_id") @db.Uuid
+  grantedAt       DateTime  @default(now()) @map("granted_at") @db.Timestamptz()
+  expiresAt       DateTime? @map("expires_at") @db.Timestamptz()
+  revokedAt       DateTime? @map("revoked_at") @db.Timestamptz()
+  completedAt     DateTime? @map("completed_at") @db.Timestamptz()
+  notes           String?
+  sharedDocuments Json?     @default("[]") @map("shared_documents")
+
+  request Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@map("pvr_access_grants")
+}
+
+// Per-work PVR access (only if client confirms per-work instead of blanket)
+model PvrAccessGrantItem {
+  requestId       String @map("request_id") @db.Uuid
+  portfolioItemId String @map("portfolio_item_id") @db.Uuid
+
+  request       Request       @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  portfolioItem PortfolioItem @relation(fields: [portfolioItemId], references: [id], onDelete: Cascade)
+
+  @@id([requestId, portfolioItemId])
+  @@map("pvr_access_grant_items")
+}
+
+// =====================================================================
+// 12. VISIT WORKFLOW
+// =====================================================================
+
+// DB trigger ensures referenced request is type='visit'
+model VisitRequest {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requestId     String      @unique @map("request_id") @db.Uuid
+  requestedDate DateTime?   @map("requested_date") @db.Date
+  requestedTime DateTime?   @map("requested_time") @db.Time()
+  location      String?     @db.VarChar(250)
+  purpose       String?
+  status        VisitStatus @default(pending)
+  confirmedDate DateTime?   @map("confirmed_date") @db.Date
+  confirmedTime DateTime?   @map("confirmed_time") @db.Time()
+  notes         String?
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt     DateTime    @updatedAt @map("updated_at") @db.Timestamptz()
+
+  request       Request              @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  statusHistory VisitStatusHistory[]
+
+  @@index([status], map: "idx_visit_requests_status")
+  @@map("visit_requests")
+}
+
+model VisitStatusHistory {
+  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  visitId    String      @map("visit_id") @db.Uuid
+  fromStatus VisitStatus? @map("from_status")
+  toStatus   VisitStatus @map("to_status")
+  changedBy  String?     @map("changed_by") @db.Uuid
+  changedAt  DateTime    @default(now()) @map("changed_at") @db.Timestamptz()
+  note       String?
+
+  visit         VisitRequest @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  changedByUser User?        @relation(fields: [changedBy], references: [id])
+
+  @@map("visit_status_history")
+}
+
+// =====================================================================
+// 13. PRIVATE THREADS
+// =====================================================================
+
+model Thread {
+  id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  originatingRequestId String?  @map("originating_request_id") @db.Uuid
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  originatingRequest Request?           @relation(fields: [originatingRequestId], references: [id])
+  participants       ThreadParticipant[]
+  messages           ThreadMessage[]
+
+  @@map("threads")
+}
+
+model ThreadParticipant {
+  threadId String @map("thread_id") @db.Uuid
+  userId   String @map("user_id") @db.Uuid
+
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([threadId, userId])
+  @@map("thread_participants")
+}
+
+model ThreadMessage {
+  id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threadId String   @map("thread_id") @db.Uuid
+  senderId String   @map("sender_id") @db.Uuid
+  body     String
+  sentAt   DateTime @default(now()) @map("sent_at") @db.Timestamptz()
+
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender User   @relation(fields: [senderId], references: [id])
+
+  @@map("thread_messages")
+}
+
+// =====================================================================
+// 14. STATUS HISTORY, ENGAGEMENT, ADMIN
+// =====================================================================
+
+model PitchStatusHistory {
+  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pitchId    String      @map("pitch_id") @db.Uuid
+  fromStatus PitchStatus? @map("from_status")
+  toStatus   PitchStatus @map("to_status")
+  changedBy  String?     @map("changed_by") @db.Uuid
+  changedAt  DateTime    @default(now()) @map("changed_at") @db.Timestamptz()
+  note       String?
+
+  pitch         Pitch @relation(fields: [pitchId], references: [id], onDelete: Cascade)
+  changedByUser User? @relation("PitchChangedBy", fields: [changedBy], references: [id])
+
+  @@map("pitch_status_history")
+}
+
+model EngagementEvent {
+  id         BigInt   @id @default(autoincrement())
+  userId     String?  @map("user_id") @db.Uuid
+  eventType  String   @map("event_type") @db.VarChar(50)
+  entityType String?  @map("entity_type") @db.VarChar(50)
+  entityId   String?  @map("entity_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([eventType, createdAt], map: "idx_events_type_created")
+  @@map("engagement_events")
+}
+
+model AdminAction {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  adminId      String   @map("admin_id") @db.Uuid
+  actionType   String   @map("action_type") @db.VarChar(50)
+  targetUserId String?  @map("target_user_id") @db.Uuid
+  notes        String?
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  admin      User  @relation("AdminActor", fields: [adminId], references: [id])
+  targetUser User? @relation("AdminTarget", fields: [targetUserId], references: [id])
+
+  @@map("admin_actions")
+}
+
+// =====================================================================
+// 15. CONTACT REVEALS (Two emails & two phones masked behind audit)
+// =====================================================================
+
+model ContactReveal {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  revealerId String   @map("revealer_id") @db.Uuid
+  targetId   String   @map("target_id") @db.Uuid
+  revealedAt DateTime @default(now()) @map("revealed_at") @db.Timestamptz()
+
+  revealer User @relation("Revealer", fields: [revealerId], references: [id], onDelete: Cascade)
+  target   User @relation("RevealedTarget", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@unique([revealerId, targetId])
+  @@map("contact_reveals")
+}
+
+// =====================================================================
+// 16. UPLOADED ASSETS (Cloudflare R2 Object Storage Tracking)
+// =====================================================================
+
+model UploadedAsset {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  key       String   @unique
+  url       String
+  filename  String
+  mimeType  String   @map("mime_type")
+  size      Int?
+  folder    String   @default("media")
+  status    String   @default("pending") // "pending" | "uploaded" | "failed"
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_uploaded_assets_user")
+  @@index([folder], map: "idx_uploaded_assets_folder")
+  @@map("uploaded_assets")
+}
