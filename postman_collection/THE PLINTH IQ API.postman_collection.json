@@ -1,0 +1,3650 @@
+{
+  "info": {
+    "_postman_id": "05be05ba-6b59-4455-aa77-1f352f2a413a",
+    "name": "THE PLINTH IQ API",
+    "description": "Auto-generated Postman Collection v2.1 from NestJS route logs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "37791399"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"mayursaini1987@gmail.com\",\n  \"password\": \"Welcome!123\",\n  \"role\": \"artist\",\n  \"country\": \"India\"\n}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const token = res.access_token || res.accessToken || res.token || (res.data && (res.data.access_token || res.data.token));",
+                  "if (token) { pm.collectionVariables.set('token', token); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Email (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "verify-email"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Email (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email?token=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "verify-email"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Resend Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-verification",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "resend-verification"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"password\": \"NewPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User (Me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"\",\n  \"newPassword\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "settings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Settings",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "settings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/delete-account",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "delete-account"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Activate User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/activate/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "activate",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/users/:id/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "users",
+                ":id",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Onboarding",
+      "item": [
+        {
+          "name": "Get Onboarding Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/onboarding/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "onboarding",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Onboard Artist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/onboarding/artist",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "onboarding",
+                "artist"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Onboard Gallery",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/onboarding/gallery",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "onboarding",
+                "gallery"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Onboard Art Professional",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/onboarding/art-professional",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "onboarding",
+                "art-professional"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Onboard Collector",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/onboarding/collector",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "onboarding",
+                "collector"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Onboarding",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/onboarding/complete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "onboarding",
+                "complete"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Mail",
+      "item": [
+        {
+          "name": "Send Mail",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"recipient@example.com\",\n  \"subject\": \"Test Subject\",\n  \"html\": \"<p>Hello</p>\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/mail/send",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mail",
+                "send"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Test Mail",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/mail/test",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mail",
+                "test"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Storage",
+      "item": [
+        {
+          "name": "Get Presigned URL",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filename\": \"artwork.jpg\",\n  \"contentType\": \"image/jpeg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/storage/presigned-url",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "storage",
+                "presigned-url"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm Upload",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/storage/confirm-upload",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "storage",
+                "confirm-upload"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Assets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/storage/assets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "storage",
+                "assets"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Single File",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "value": null
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/storage/upload",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "storage",
+                "upload"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Multiple Files",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "value": null
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/storage/upload-multiple",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "storage",
+                "upload-multiple"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get File by Key",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/storage/file/:key",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "storage",
+                "file",
+                ":key"
+              ],
+              "variable": [
+                {
+                  "key": "key",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete File by Key",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/storage/:key",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "storage",
+                ":key"
+              ],
+              "variable": [
+                {
+                  "key": "key",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Taxonomy",
+      "item": [
+        {
+          "name": "Get Taxonomy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/taxonomy",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "taxonomy"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Artists",
+      "item": [
+        {
+          "name": "List Artists",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/artists",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Artist Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/artists/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Artist Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/artists/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Artist by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/artists/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Artist PVR",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/artists/:id/pvr",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists",
+                ":id",
+                "pvr"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Aesthetic",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/artists/me/aesthetics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists",
+                "me",
+                "aesthetics"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Aesthetic",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/artists/me/aesthetics/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists",
+                "me",
+                "aesthetics",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Portfolio Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/artists/me/portfolio",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists",
+                "me",
+                "portfolio"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Portfolio Item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/artists/me/portfolio/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists",
+                "me",
+                "portfolio",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Portfolio Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/artists/me/portfolio/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists",
+                "me",
+                "portfolio",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reorder Portfolio",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/artists/me/portfolio/reorder",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists",
+                "me",
+                "portfolio",
+                "reorder"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add CV Entry",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/artists/me/cv",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists",
+                "me",
+                "cv"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update CV Entry",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/artists/me/cv/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists",
+                "me",
+                "cv",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete CV Entry",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/artists/me/cv/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "artists",
+                "me",
+                "cv",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Galleries",
+      "item": [
+        {
+          "name": "List Galleries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/galleries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "galleries"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Gallery Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/galleries/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "galleries",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Gallery Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/galleries/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "galleries",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Gallery by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/galleries/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "galleries",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Roster",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/galleries/me/roster",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "galleries",
+                "me",
+                "roster"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Artist to Roster",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"artistId\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/galleries/me/roster",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "galleries",
+                "me",
+                "roster"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Artist from Roster",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/galleries/me/roster/:artistId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "galleries",
+                "me",
+                "roster",
+                ":artistId"
+              ],
+              "variable": [
+                {
+                  "key": "artistId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Roster Artist Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/galleries/me/roster/:artistId/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "galleries",
+                "me",
+                "roster",
+                ":artistId",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "artistId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Exhibitions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/galleries/me/exhibitions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "galleries",
+                "me",
+                "exhibitions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Exhibition",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/galleries/me/exhibitions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "galleries",
+                "me",
+                "exhibitions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Exhibition",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/galleries/me/exhibitions/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "galleries",
+                "me",
+                "exhibitions",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Exhibition",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/galleries/me/exhibitions/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "galleries",
+                "me",
+                "exhibitions",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Art Professionals",
+      "item": [
+        {
+          "name": "List Art Professionals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/art-professionals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "art-professionals"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Art Professional Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/art-professionals/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "art-professionals",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Art Professional Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/art-professionals/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "art-professionals",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Preferences",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/art-professionals/me/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "art-professionals",
+                "me",
+                "preferences"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Preferences",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/art-professionals/me/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "art-professionals",
+                "me",
+                "preferences"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Art Professional by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/art-professionals/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "art-professionals",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Collectors",
+      "item": [
+        {
+          "name": "List Collectors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/collectors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collectors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Collector Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/collectors/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collectors",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Collector Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/collectors/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collectors",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Collector by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/collectors/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collectors",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Collections",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/collectors/me/collections",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collectors",
+                "me",
+                "collections"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Collection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/collectors/me/collections",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collectors",
+                "me",
+                "collections"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Collection by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/collectors/me/collections/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collectors",
+                "me",
+                "collections",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Collection",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/collectors/me/collections/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collectors",
+                "me",
+                "collections",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Collection",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/collectors/me/collections/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collectors",
+                "me",
+                "collections",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Item to Collection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/collectors/me/collections/:id/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collectors",
+                "me",
+                "collections",
+                ":id",
+                "items"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Item from Collection",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/collectors/me/collections/:id/items/:itemId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "collectors",
+                "me",
+                "collections",
+                ":id",
+                "items",
+                ":itemId"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                },
+                {
+                  "key": "itemId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Opportunities & Pitches",
+      "item": [
+        {
+          "name": "List Opportunities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Opportunity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/opportunities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Opportunities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/mine",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                "mine"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Opportunity by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Opportunity",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Opportunity",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Pitches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/my-pitches",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                "my-pitches"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Received Pitches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/pitches/received",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                "pitches",
+                "received"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pitch by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/pitches/:pitchId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                "pitches",
+                ":pitchId"
+              ],
+              "variable": [
+                {
+                  "key": "pitchId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pitches for Opportunity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/:id/pitches",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                ":id",
+                "pitches"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Pitch to Opportunity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/:id/pitch",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                ":id",
+                "pitch"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Pitch Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/pitches/:pitchId/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                "pitches",
+                ":pitchId",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "pitchId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Withdraw Pitch",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/pitches/:pitchId/withdraw",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                "pitches",
+                ":pitchId",
+                "withdraw"
+              ],
+              "variable": [
+                {
+                  "key": "pitchId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Pitch Notes",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/opportunities/pitches/:pitchId/notes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "opportunities",
+                "pitches",
+                ":pitchId",
+                "notes"
+              ],
+              "variable": [
+                {
+                  "key": "pitchId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Requests & PVR",
+      "item": [
+        {
+          "name": "Create Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sent Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/requests/sent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests",
+                "sent"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Received Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/requests/received",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests",
+                "received"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Request Activity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/requests/activity",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests",
+                "activity"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get PVR Session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/requests/pvr/session/:sessionId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests",
+                "pvr",
+                "session",
+                ":sessionId"
+              ],
+              "variable": [
+                {
+                  "key": "sessionId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Request by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/requests/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Respond to Request",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/:id/respond",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests",
+                ":id",
+                "respond"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Withdraw Request",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/requests/:id/withdraw",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests",
+                ":id",
+                "withdraw"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Request",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/requests/:id/complete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests",
+                ":id",
+                "complete"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Schedule Request Visit",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/:id/visit/schedule",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests",
+                ":id",
+                "visit",
+                "schedule"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add PVR Artworks",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/:id/pvr/artworks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests",
+                ":id",
+                "pvr",
+                "artworks"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add PVR Documents",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/:id/pvr/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests",
+                ":id",
+                "pvr",
+                "documents"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update PVR Notes",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/:id/pvr/notes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests",
+                ":id",
+                "pvr",
+                "notes"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update PVR Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/:id/pvr/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "requests",
+                ":id",
+                "pvr",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Threads",
+      "item": [
+        {
+          "name": "List Threads",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/threads",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "threads"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Thread by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/threads/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "threads",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message in Thread",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/threads/:id/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "threads",
+                ":id",
+                "messages"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Social (Shortlists & Follows)",
+      "item": [
+        {
+          "name": "List Shortlists",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shortlists",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shortlists"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Shortlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Shortlist\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shortlists",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shortlists"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shortlist by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shortlists/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shortlists",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Shortlist",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shortlists/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shortlists",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Artist to Shortlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"artistId\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shortlists/:id/artists",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shortlists",
+                ":id",
+                "artists"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Artist from Shortlist",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shortlists/:id/artists/:artistId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shortlists",
+                ":id",
+                "artists",
+                ":artistId"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                },
+                {
+                  "key": "artistId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Followed Artists",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/follows",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "follows"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Follow Artist",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/follows/:artistId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "follows",
+                ":artistId"
+              ],
+              "variable": [
+                {
+                  "key": "artistId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unfollow Artist",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/follows/:artistId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "follows",
+                ":artistId"
+              ],
+              "variable": [
+                {
+                  "key": "artistId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check Following Artist",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/follows/check/:artistId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "follows",
+                "check",
+                ":artistId"
+              ],
+              "variable": [
+                {
+                  "key": "artistId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Contact",
+      "item": [
+        {
+          "name": "Get User Contact",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":id",
+                "contact"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reveal User Contact",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id/reveal-contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":id",
+                "reveal-contact"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Verification",
+      "item": [
+        {
+          "name": "Submit Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/verification/submit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "verification",
+                "submit"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Verification Support",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/verification/support",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "verification",
+                "support"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Verification Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/verification/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "verification",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Verification Queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/verification/queue",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "verification",
+                "queue"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Verification Submission",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/verification/:submissionId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "verification",
+                ":submissionId"
+              ],
+              "variable": [
+                {
+                  "key": "submissionId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Verification Decision",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"APPROVED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/verification/:submissionId/decision",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "verification",
+                ":submissionId",
+                "decision"
+              ],
+              "variable": [
+                {
+                  "key": "submissionId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unread Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/unread-count",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "unread-count"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark All Notifications Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/read-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "read-all"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Notification Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:id/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                ":id",
+                "read"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get KPIs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/kpis",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "kpis"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Requests KPIs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/requests-kpis",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "requests-kpis"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/:id/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                ":id",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Briefs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/briefs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "briefs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Brief Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/briefs/:id/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "briefs",
+                ":id",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Pitches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/pitches",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "pitches"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/requests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "requests"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Permissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/permissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Permissions",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/permissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Admin Activity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/activity",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "activity"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}
